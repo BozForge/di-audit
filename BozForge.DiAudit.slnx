@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/BozForge.DiAudit/BozForge.DiAudit.csproj" />
+    <Project Path="src/BozForge.DiAudit.AspNetCore/BozForge.DiAudit.AspNetCore.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/BozForge.DiAudit.Tests/BozForge.DiAudit.Tests.csproj" />
+    <Project Path="tests/SampleApp/SampleApp.csproj" />
+  </Folder>
+</Solution>

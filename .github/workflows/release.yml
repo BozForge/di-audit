@@ -1,0 +1,39 @@
+# v ile başlayan bir etiket (ör. v0.1.0) itildiğinde iki paketi nuget.org'a yayınlar.
+# Kimlik doğrulama Trusted Publishing ile: nuget.org'daki BozForge politikası bu repoyu ve
+# bu dosyayı (release.yml) tanır, her çalışmada 1 saatlik geçici anahtar verir. Secret gerekmez.
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.0.x
+            10.0.x
+
+      - name: Sürümü etiketten al
+        run: echo "VERSION=${GITHUB_REF_NAME#v}" >> "$GITHUB_ENV"
+
+      - run: dotnet test BozForge.DiAudit.slnx -c Release
+      - run: dotnet pack src/BozForge.DiAudit -c Release -o artifacts -p:Version=$VERSION
+      - run: dotnet pack src/BozForge.DiAudit.AspNetCore -c Release -o artifacts -p:Version=$VERSION
+
+      - name: NuGet girişi (geçici anahtar)
+        uses: NuGet/login@v1
+        id: login
+        with:
+          user: huseyinbozdemir
+
+      - name: nuget.org'a gönder
+        run: dotnet nuget push "artifacts/*.nupkg" --api-key "${{ steps.login.outputs.NUGET_API_KEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
